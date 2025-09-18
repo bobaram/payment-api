@@ -29,7 +29,7 @@ const calculateRisk = async (payload: FraudCheckPayload) => {
   }
 
   // Determine if the transaction should be flagged
-  const isFlagged = riskScore >= 75;
+  const isFlagged = riskScore >= 50;
 
   return { riskScore, isFlagged };
 };

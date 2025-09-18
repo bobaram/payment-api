@@ -1,13 +1,18 @@
 import type { Request, Response } from 'express';
 const express = require('express');
-const { createTransactionSchema } = require('../validators/transaction.validator');
+const {
+  createTransactionSchema,
+  updateStatusSchema,
+} = require('../validators/transaction.validator');
 const validate = require('../middlewares/validate');
+const adminAuth = require('../middlewares/admin');
 const { calculateRisk } = require('../services/fraud.service');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const router = express.Router();
 
+// POST /api/transactions - Create a new transaction
 router.post(
   '/',
   validate(createTransactionSchema),
@@ -15,16 +20,13 @@ router.post(
     const { amount, currency, merchantId, customerEmail, paymentMethod } =
       req.body;
 
-    // 1. Perform fraud check
     const { riskScore, isFlagged } = await calculateRisk({
       amount,
       customerEmail,
     });
 
-    // 2. Determine transaction status based on fraud check
     const status = isFlagged ? 'FLAGGED' : 'COMPLETED';
 
-    // 3. Save the transaction to the database
     const transaction = await prisma.transaction.create({
       data: {
         amount,
@@ -37,7 +39,6 @@ router.post(
       },
     });
 
-    // 4. Send the created transaction as the response
     res.status(201).send(transaction);
   }
 );
@@ -75,6 +76,30 @@ router.get('/', async (req: Request, res: Response) => {
 
   res.send(transactions);
 });
+
+// PUT /api/transactions/:id/status - Update a transaction's status (Admin only)
+router.put(
+  '/:id/status',
+  [adminAuth, validate(updateStatusSchema)],
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+      const updatedTransaction = await prisma.transaction.update({
+        where: { id },
+        data: { status },
+      });
+
+      res.send(updatedTransaction);
+    } catch (error) {
+      // Prisma throws an error if the record to update is not found
+      return res
+        .status(404)
+        .send({ message: 'The transaction with the given ID was not found.' });
+    }
+  }
+);
 
 module.exports = router;
 

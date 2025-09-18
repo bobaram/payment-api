@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,3 +6,25 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Transaction {
+  id            String @id @default(uuid())
+  amount        Float
+  currency      String
+  merchantId    String
+  customerEmail String
+  paymentMethod String
+  // We use a String type for status to ensure compatibility with SQLite,
+  // which doesn't support native enums. The application layer will
+  // be responsible for validating the possible values.
+  status        String @default("PENDING")
+  riskScore     Int?   // Stores the calculated fraud score.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for faster queries by merchant and customer.
+  @@index([merchantId])
+  @@index([customerEmail])
+}
+

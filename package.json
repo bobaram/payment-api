@@ -9,10 +9,9 @@
     "build": "tsc",
     "pretest": "copy .env.test .env",
     "test": "prisma migrate deploy && jest --runInBand",
-    "posttest": "copy .env.development .env",
-    "pre-db:migrate:test": "copy .env.test .env",
+    "predev": "copy .env.development .env",
     "db:migrate:test": "prisma migrate dev",
-    "post-db:migrate:test": "copy .env.development .env"
+    "db:migrate:dev": "prisma migrate dev" 
   },
   "keywords": [],
   "author": "",

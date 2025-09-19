@@ -1,0 +1,243 @@
+{
+	"info": {
+		"_postman_id": "64e18047-bdf8-46da-91ce-a7c88cc6b0cc",
+		"name": "Payment Processing API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37283459"
+	},
+	"item": [
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Create Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Capture the created transaction ID to use in other requests",
+									"if (pm.response.code === 201) {",
+									"    pm.collectionVariables.set(\"transactionId\", pm.response.json().id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 49.99,\n    \"currency\": \"USD\",\n    \"merchantId\": \"merch_abc123\",\n    \"customerEmail\": \"customer@example.com\",\n    \"paymentMethod\": \"credit_card\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						},
+						"description": "Creates a new payment transaction and runs it through the fraud detection service."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"{{transactionId}}"
+							]
+						},
+						"description": "Retrieves a single transaction using the ID captured from the 'Create Transaction' request."
+					},
+					"response": []
+				},
+				{
+					"name": "List Transactions (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions?page=1&limit=5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Lists all transactions with support for pagination."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-admin-api-key",
+								"value": "{{adminApiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"FLAGGED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"{{transactionId}}",
+								"status"
+							]
+						},
+						"description": "Updates the status of a specific transaction. Requires a valid admin API key."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Merchants",
+			"item": [
+				{
+					"name": "Get Transactions for Merchant",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/merchants/merch_abc123/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"merchants",
+								"merch_abc123",
+								"transactions"
+							]
+						},
+						"description": "Retrieves all transactions associated with a specific merchant ID."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fraud Check",
+			"item": [
+				{
+					"name": "Manual Fraud Check",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1500,\n    \"customerEmail\": \"high-risk-customer@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/fraud-check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"fraud-check"
+							]
+						},
+						"description": "Assesses the fraud risk of a potential transaction without actually creating it."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Flagged Transactions Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/flagged",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"analytics",
+								"flagged"
+							]
+						},
+						"description": "Returns an analytics summary of all transactions that have been flagged for fraud."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "default"
+		},
+		{
+			"key": "adminApiKey",
+			"value": "your-secret-admin-key",
+			"type": "default"
+		},
+		{
+			"key": "transactionId",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

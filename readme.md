@@ -39,23 +39,6 @@ The project is built with **Node.js**, **Express**, **TypeScript**, and **Prisma
 
 ---
 
-## 📂 Project Structure
-
-The project uses a scalable, feature-first structure that separates concerns, making it easy to maintain and test.
-
-/
-├── prisma/ # Database schema and migrations
-├── src/
-│ ├── api/ # API-related code (routes, middleware, services)
-│ ├── startup/ # App initialization modules (routes, db)
-│ └── tests/ # Integration and unit tests
-└── ... # Config files (package.json, tsconfig.json, etc.)
-
-yaml
-Copy code
-
----
-
 ⚙️ Setup and Installation
 
 1. Clone the repository
